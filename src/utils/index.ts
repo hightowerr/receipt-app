@@ -24,3 +24,4 @@ export const parseReceiptText = (text: string) => {
     items: [],
   };
 };
+// test

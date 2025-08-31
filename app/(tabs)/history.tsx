@@ -2,11 +2,11 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { StyleSheet } from 'react-native';
 
-export default function CameraScreen() {
+export default function HistoryScreen() {
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Camera</ThemedText>
-      <ThemedText>Scan your receipts here</ThemedText>
+      <ThemedText type="title">Receipt History</ThemedText>
+      <ThemedText>View your past receipts</ThemedText>
     </ThemedView>
   );
 }

@@ -105,6 +105,11 @@ receipt-app/
   - `format`: Format code with Prettier
   - `type-check`: Run TypeScript compiler to check for type errors
   - `lint:fix`: Automatically fix linting issues
+  - `format:check`: Check for formatting issues
+  - `check-all`: Run all checks (type-check, lint, format)
+  - `fix-all`: Automatically fix all issues (format, lint)
+  - `prepare`: Set up Husky pre-commit hooks
+  - `test`: Placeholder for future tests
 
 ### app.json (Expo Configuration)
 
@@ -122,10 +127,19 @@ receipt-app/
 - **Path Aliases**: `@/*` for root-relative imports
 - **Includes**: TypeScript and TypeScript React files
 
-### eslint.config.js
+### eslint.config.mjs
 
-- **Configuration**: Uses Expo's ESLint configuration
-- **Ignores**: dist directory
+- **Configuration**: Custom ESLint configuration extending Expo's base config.
+- **Rules**: Includes specific rules for TypeScript, React/React Native, and general code quality.
+- **Ignores**: `node_modules`, `.expo`, `dist`, `build`, and config files.
+
+### .prettierrc.json
+
+- **Configuration**: Defines the code formatting rules for the project, ensuring a consistent code style.
+
+### .vscode/extensions.json
+
+- **Recommendations**: Recommends VS Code extensions for ESLint, Prettier, Expo, and TypeScript to improve the development experience.
 
 ## Dependencies & Libraries
 
@@ -161,6 +175,8 @@ receipt-app/
 - **prettier**: Code formatter
 - **eslint-config-prettier**: ESLint config for Prettier
 - **eslint-plugin-prettier**: ESLint plugin for Prettier
+- **husky**: Git hooks manager
+- **lint-staged**: Run linters on staged files
 
 ## Missing/Unimplemented Components
 
@@ -232,11 +248,17 @@ The project appears to be in the initial setup phase with a solid foundation rea
 
 ## Development Notes & Resolved Issues
 
-### Code Quality & Formatting
+### Automated Code Quality with Pre-commit Hooks
 
-- **Issue**: Inconsistent code formatting and style across the project.
-- **Resolution**: Integrated Prettier for automated code formatting and added ESLint rules to enforce it.
-- **Details**: The project now includes Prettier with ESLint integration to ensure a consistent code style. New scripts (`format`, `lint:fix`) have been added to `package.json` to automate the process. This helps maintain a clean and readable codebase.
+- **Issue**: Manual running of linters and formatters is error-prone and can lead to inconsistent code quality in the repository.
+- **Resolution**: Implemented pre-commit hooks using Husky and lint-staged to automate code formatting and linting.
+- **Details**: The project is now configured to automatically run Prettier and ESLint on staged files before each commit. This ensures that all code pushed to the repository adheres to the defined code style and quality standards, preventing inconsistencies and improving the overall health of the codebase.
+
+### Enhanced Development Environment
+
+- **Issue**: New developers might not have the necessary tools or a consistent setup, leading to a difficult onboarding process.
+- **Resolution**: Added recommended VS Code extensions and a more detailed ESLint configuration.
+- **Details**: The `.vscode/extensions.json` file now suggests essential extensions for the project, and the `eslint.config.mjs` file provides a more robust set of rules for code quality. This helps new developers get up to speed quickly and maintain a consistent development environment.
 
 ### Splash Screen Management
 

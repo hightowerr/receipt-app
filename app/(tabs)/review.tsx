@@ -1,10 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { StyleSheet } from 'react-native';
 
 export default function ReviewScreen() {
   return (
-    <View style={styles.container}>
-      <Text>Review Receipt Screen</Text>
-    </View>
+    <ThemedView style={styles.container}>
+      <ThemedText type="title">Review screen</ThemedText>
+      <ThemedText>Review your receipts here</ThemedText>
+    </ThemedView>
   );
 }
 

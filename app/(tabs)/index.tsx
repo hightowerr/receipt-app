@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { StyleSheet } from 'react-native';
+import { FirebaseTest } from '../../src/test/FirebaseTest';
 
 export default function CameraScreen() {
   return (

@@ -8,11 +8,11 @@ This is a mobile application for receipt scanning and management built using Exp
 
 ### Core Framework
 
-- **Framework**: [Expo](https://expo.dev/) (v53.0.22)
-- **UI Framework**: [React Native](https://reactnative.dev/) (v0.79.6)
-- **Language**: [TypeScript](https://www.typescriptlang.org/) (v5.8.3)
-- **Routing**: [Expo Router](https://docs.expo.dev/router/introduction/) (v5.1.5) with file-based routing
-- **Navigation**: [React Navigation](https://reactnavigation.org/) (v7.x) with Bottom Tabs
+- **Framework**: [Expo](https://expo.dev/)
+- **UI Framework**: [React Native](https://reactnative.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Routing**: [Expo Router](https://docs.expo.dev/router/introduction/) with file-based routing
+- **Navigation**: [React Navigation](https://reactnavigation.org/) with Bottom Tabs
 
 ### Development Environment
 
@@ -26,25 +26,29 @@ This is a mobile application for receipt scanning and management built using Exp
 
 ```
 receipt-app/
-├── app/                    # Main application code (file-based routing)
-│   ├── _layout.tsx         # Root layout
-│   ├── +not-found.tsx      # 404 page
-│   └── (tabs)/             # Tab-based navigation
-│       ├── _layout.tsx     # Tab layout configuration
-│       ├── index.tsx       # Camera tab (previously Home)
-│       ├── history.tsx     # History tab
-│       └── review.tsx      # Receipt review tab
-├── assets/                 # Static assets
-│   ├── fonts/              # Custom fonts
-│   └── images/             # Images and icons
-├── components/             # Reusable UI components
-│   ├── ui/                 # UI primitives
-│   └── [Component].tsx     # Individual components
-├── constants/              # App constants
-│   └── Colors.ts           # Theme colors
-├── hooks/                  # Custom React hooks
-├── scripts/                # Utility scripts
-└── [Config files]          # Configuration files
+├── app/                     # Main application code (file-based routing)
+│   ├── _layout.tsx          # Root layout
+│   ├── +not-found.tsx       # 404 page
+│   └── (tabs)/              # Tab-based navigation
+│       ├── _layout.tsx      # Tab layout configuration
+│       ├── index.tsx        # Camera tab (previously Home)
+│       ├── history.tsx      # History tab
+│       └── review.tsx       # Receipt review tab
+├── assets/                  # Static assets
+│   ├── fonts/               # Custom fonts
+│   └── images/              # Images and icons
+├── components/              # Reusable UI components
+│   ├── ui/                  # UI primitives
+│   └── [Component].tsx      # Individual components
+├── constants/               # App constants
+│   └── Colors.ts            # Theme colors
+├── hooks/                   # Custom React hooks
+├── scripts/                 # Utility scripts
+├── src/                     # Source code for services, config, etc.
+│   ├── config/              # Firebase configuration
+│   ├── services/            # External services (Firebase, OCR)
+│   └── types/               # TypeScript type definitions
+└── [Config files]           # Configuration files
 ```
 
 ### Key Components
@@ -178,51 +182,59 @@ receipt-app/
 - **husky**: Git hooks manager
 - **lint-staged**: Run linters on staged files
 
-## Missing/Unimplemented Components
+## Service Integration
 
-Based on the project name "receipt-app" but current configuration, the following components are **NOT YET IMPLEMENTED**:
+The project includes placeholder services for key functionalities, indicating planned integrations.
+
+### Firebase Integration (`src/services/firebase.ts`)
+
+- **Status**: Planned (stubbed)
+- **Details**: The service file includes placeholder functions for Firebase initialization and Firestore operations (`addReceipt`, `getReceipts`). This indicates that Firebase is the intended backend for data storage.
+
+### OCR Service (`src/services/ocr.ts`)
+
+- **Status**: Planned (stubbed)
+- **Details**: A placeholder OCR service exists with a method for text extraction. The implementation is pending, with comments suggesting Google Vision or Azure Computer Vision as potential solutions.
+
+## Partially Implemented / To-Do Components
+
+While the foundational UI is in place, several core features are in a planned or stubbed state.
 
 ### Receipt Scanning Functionality
 
 - **Status**: Not implemented
-- **Expected**: Camera integration, image processing
-- **Current**: No camera or image processing libraries detected
+- **Expected**: Camera integration, image processing.
+- **Current**: No camera or image processing libraries are integrated yet.
 
 ### OCR/AI Integration
 
-- **Status**: Not implemented
-- **Expected**: OCR libraries, ML Kit, or similar
-- **Current**: No OCR or AI dependencies found
+- **Status**: Planned (stubbed)
+- **Expected**: Integration with a cloud-based OCR service.
+- **Current**: `src/services/ocr.ts` exists but lacks a concrete implementation.
 
 ### State Management
 
 - **Status**: Not configured
-- **Expected**: Redux, Zustand, or React Context
-- **Current**: No state management libraries detected
+- **Expected**: A global state management solution like Redux, Zustand, or React Context for managing application-wide state.
+- **Current**: No state management libraries have been integrated.
 
 ### Data Storage
 
-- **Status**: Not implemented
-- **Expected**: AsyncStorage, SQLite, or Firestore
-- **Current**: No database or storage dependencies found
+- **Status**: Planned (stubbed)
+- **Expected**: Cloud-based storage using Firestore.
+- **Current**: `src/services/firebase.ts` is set up with placeholder functions for Firestore operations.
 
 ### Authentication
 
 - **Status**: Not implemented
-- **Expected**: Authentication libraries or services
-- **Current**: No auth libraries detected
+- **Expected**: User authentication to secure access to receipt data.
+- **Current**: No authentication libraries or services have been integrated.
 
 ### Form Handling & Validation
 
 - **Status**: Not implemented
-- **Expected**: Form libraries like Formik or React Hook Form
-- **Current**: No form validation libraries found
-
-### API Integration
-
-- **Status**: Not configured
-- **Expected**: Fetch utilities, Axios, or similar
-- **Current**: No API client libraries detected
+- **Expected**: Libraries like Formik or React Hook Form for managing user input and validation.
+- **Current**: No form handling libraries are present.
 
 ## Summary
 
@@ -277,6 +289,22 @@ The project appears to be in the initial setup phase with a solid foundation rea
 - **Issue**: TypeScript type errors in the root layout component.
 - **Resolution**: Added proper interface for test props in `app/_layout.tsx`.
 - **Details**: The root layout component had TypeScript errors due to missing type definitions. We added a proper interface for the `TestProps` and ensured the `testFunction` was properly typed.
+
+### CI/CD Pipeline Setup for Expo Project
+
+- **Issue**: Setting up a CI/CD pipeline for an Expo project presented challenges, especially with build environment configuration and dependency caching.
+- **Resolution**: Created a GitHub Actions workflow (`.github/workflows/ci.yml`) that automates checks for linting, formatting, and type safety.
+- **Details**: The workflow uses a specific Node.js version, caches npm dependencies to speed up subsequent runs, and runs `npm ci` for clean installs. It then executes `check-all` to ensure code quality before merging. This setup prevents regressions and maintains a high-quality codebase.
+
+### Refactoring for Scalability and Maintainability
+
+- **Issue**: The initial project structure mixed application logic with UI components, making it difficult to scale and maintain. Key functionalities like service integrations and configurations were not clearly separated.
+- **Resolution**: Introduced a `src` directory to centralize application logic, services, and configurations, separating them from the UI-focused `app` and `components` directories.
+- **Details**:
+  - **`src/config`**: Holds configuration files, such as Firebase settings, to keep them isolated and manageable.
+  - **`src/services`**: Contains modules for external services like Firebase and OCR, promoting a clear separation of concerns.
+  - **`src/types`**: Centralizes TypeScript type definitions, improving reusability and type safety across the application.
+- **Benefit**: This refactoring establishes a more scalable and maintainable architecture, making it easier to develop and test new features without impacting the UI layer. It also aligns the project with best practices for structuring modern applications.
 
 ### Common Pitfalls
 

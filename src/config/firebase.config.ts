@@ -1,12 +1,21 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+// src/config/firebase.config.ts
+import {initializeApp} from "firebase/app";
+import {
+  getFirestore,
+  connectFirestoreEmulator,
+  initializeFirestore,
+} from "firebase/firestore";
 import {
   getAuth,
   connectAuthEmulator,
   initializeAuth,
-  getReactNativePersistence,
-} from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+  browserLocalPersistence,
+} from "firebase/auth";
+
+// React Native Firebase imports
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
+import storage from "@react-native-firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -17,22 +26,23 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
+// Web Firebase (existing)
 const app = initializeApp(firebaseConfig);
-
-// Initialize Auth with AsyncStorage persistence
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
+export const webAuth = initializeAuth(app, {
+  persistence: browserLocalPersistence,
 });
+export const webDb = getFirestore(app);
 
-// Initialize Firestore
-export const db = getFirestore(app);
+// React Native Firebase (new)
+export const rnAuth = auth;
+export const rnFirestore = firestore;
+export const rnStorage = storage;
 
 // Connect to emulators in development
 if (__DEV__) {
-  // Uncomment these lines when using Firebase emulators
-  // connectAuthEmulator(auth, 'http://localhost:9099');
-  // connectFirestoreEmulator(db, 'localhost', 8080);
+  // Uncomment when using Firebase emulators
+  // connectAuthEmulator(webAuth, 'http://localhost:9099');
+  // connectFirestoreEmulator(webDb, 'localhost', 8080);
 }
 
 export default app;

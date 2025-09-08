@@ -1,29 +1,46 @@
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import {Colors} from "@/constants/Colors";
+import {useColorScheme} from "@/hooks/useColorScheme";
+import React from "react";
+import {StyleSheet, Text, TouchableOpacity, ViewStyle} from "react-native";
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: "primary" | "secondary";
   style?: ViewStyle;
+  disabled?: boolean;
+  testID?: string;
 }
 
-export function Button({ title, onPress, variant = 'primary', style }: ButtonProps) {
+export function Button({
+  title,
+  onPress,
+  variant = "primary",
+  style,
+  disabled,
+  testID,
+}: ButtonProps) {
   const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const colors = Colors[colorScheme ?? "light"];
 
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        variant === 'primary' ? { backgroundColor: colors.tint } : styles.secondary,
+        variant === "primary"
+          ? {backgroundColor: colors.tint}
+          : styles.secondary,
         style,
       ]}
       onPress={onPress}
+      disabled={disabled}
+      testID={testID}
     >
-      <Text style={[styles.text, variant === 'secondary' && { color: colors.tint }]}>{title}</Text>
+      <Text
+        style={[styles.text, variant === "secondary" && {color: colors.tint}]}
+      >
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -33,17 +50,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   secondary: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: "#007AFF",
   },
   text: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

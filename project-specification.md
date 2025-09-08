@@ -224,13 +224,18 @@ receipt-app/
 - **react-test-renderer**: Used for snapshot testing and rendering components in test environments.
 - **@types/jest**: TypeScript type definitions for Jest.
 - **react-native-worklets**: Babel plugin for Reanimated.
+- **expo-haptics**: Provides haptic feedback on iOS and Android.
+- **@react-native-community/datetimepicker**: A native date and time picker for Android and iOS.
+- **react-native-gesture-handler**: Provides native-driven gesture management APIs for building best-in-class touch-based experiences in React Native.
+- **react-native-reanimated**: A library for creating smooth animations and interactions that run on the native thread.
+- **@react-native-async-storage/async-storage**: An unencrypted, asynchronous, persistent, key-value storage system for React Native.
 
 ### Cloud Services
 
 - **Firebase Firestore**: NoSQL document database
 - **Firebase Storage**: File storage with automatic triggers
 - **Google Cloud Vision API**: Enterprise OCR processing
-- **Firebase Authentication**: User authentication (planned)
+- **Firebase Authentication**: User authentication
 
 ## Service Integration
 
@@ -282,18 +287,18 @@ The core OCR functionality is fully implemented, with some features planned for 
 - **Multi-Runtime Support**: Node.js and Bun development environment
 - **Firebase Configuration**: Client and server-side Firebase configurations ready
 - **Comprehensive Testing Environment**: Jest and React Native Testing Library are fully configured for unit and component testing.
-- **User Authentication**: Full Firebase Authentication implementation with email/password sign-up, sign-in, and session management.
-- **Mobile Image Upload**: Robust image upload service with progress tracking, file validation, and real-time status updates in Firestore.
+- **User Authentication**: Full Firebase Authentication implementation with email/password sign-up, sign-in, and session management, including a dedicated `FirebaseAuthService` and `useAuth` hook for state management.
+- **Mobile Image Upload**: Robust image upload service with progress tracking, file validation, and real-time status updates in Firestore, managed by `FirebaseStorageService`.
+- **Functional Camera Interface**: A complete camera and gallery interface using `expo-image-picker` for capturing and selecting receipts, integrated with authentication and storage services. Includes a visual positioning guide to enhance user experience.
 
 ### 🚧 Partially Implemented Features
 
 - **Web Upload Interface**: HTML drag-and-drop exists but lacks Firebase Storage integration
-- **Camera Functionality**: Tab navigation and UI screens exist, camera integration planned
 - **Real-time Data Flow**: Backend processes and stores data, frontend needs connection
 
 ### 📋 Planned Features
 
-- **Camera Capture**: Native camera integration for receipt photography
+- **Image Processing**: Mobile image optimization before upload
 - **Image Processing**: Mobile image optimization before upload
 - **Receipt Management**: Mobile interface for viewing, editing, and organizing receipts
 - **Data Parsing**: Structured data extraction from OCR text (amounts, dates, vendors)
@@ -507,6 +512,29 @@ The mobile app foundation is complete and the backend OCR infrastructure is full
   - **`FirebaseStorageService`**: Manages image uploads to Firebase Storage with support for file validation, metadata generation, and progress tracking. It also integrates with Firestore to create and update tracking documents, ensuring a seamless and reliable upload process.
 - **Benefit**: These services provide a clean, reusable, and testable interface for interacting with Firebase, establishing a solid foundation for building out the remaining client-side features.
 
+### Complete Authentication Flow Implementation
+
+- **Issue**: A seamless and secure user authentication flow is a critical requirement for any application handling user data. The implementation needed to cover sign-up, sign-in, sign-out, and session management, while being robust and easy to maintain.
+- **Resolution**: A comprehensive authentication system was built using Firebase Authentication, encapsulated within a dedicated service and a custom React hook.
+- **Details**:
+  - **`FirebaseAuthService`**: Centralizes all Firebase Authentication logic (sign-up, sign-in, sign-out, and auth state listening).
+  - **`useAuth` Hook**: Provides a simple interface for components to access the current user, loading states, and authentication methods.
+  - **UI Screens**: Dedicated screens for sign-in (`app/auth/sign-in.tsx`) and sign-up (`app/auth/sign-up.tsx`) with form validation and error handling.
+  - **Protected Routes**: The root layout (`app/_layout.tsx`) automatically redirects users based on their authentication state, protecting the main app content.
+- **Benefit**: This architecture provides a secure, scalable, and maintainable authentication system that is decoupled from the UI, making it easy to manage and test.
+
+### Functional Camera Interface with Authentication
+
+- **Issue**: The app required a functional camera interface to allow authenticated users to capture or select receipt images for processing. This needed to include permissions handling, image selection, and integration with the Firebase Storage service.
+- **Resolution**: Implemented a complete camera and gallery workflow using `expo-image-picker`, integrated with the existing authentication and storage services.
+- **Details**:
+  - **`expo-image-picker`**: Used for both launching the device camera and selecting images from the gallery, providing a consistent user experience.
+  - **Permissions Handling**: The interface requests camera and media library permissions before allowing the user to proceed.
+  - **Authentication Guard**: Image uploads are only allowed if a user is authenticated, with clear feedback to the user if they are not signed in.
+  - **`FirebaseStorageService` Integration**: The selected image is uploaded to Firebase Storage using the `FirebaseStorageService`, with progress tracking and real-time status updates.
+  - **Positioning Guide**: A visual overlay was added to the camera screen to help users frame their receipts, improving the user experience.
+- **Benefit**: This provides a robust and user-friendly interface for the core functionality of the app, with proper permissions and authentication checks.
+
 ### Common Pitfalls and Best Practices
 
 #### Firebase Functions Development
@@ -554,3 +582,4 @@ The mobile app foundation is complete and the backend OCR infrastructure is full
 - **Peer Dependencies**: When installing testing libraries, be mindful of peer dependency conflicts. Use the `--legacy-peer-deps` flag with npm if necessary to resolve them, especially for development dependencies.
 - **Module Isolation**: When testing modules with side effects (like Firebase initialization), use `jest.isolateModules` to ensure a fresh import for each test, preventing mock bleed-over and ensuring test independence.
 - **Babel Configuration**: Use the `react-native-worklets/plugin` for Reanimated and ensure that the Babel preset order is correct to avoid transformation errors.
+- **Integration Test Mocking**: When writing integration tests for components that use custom hooks, ensure that the mock implementation provides a persistent mock function that can be accessed and asserted upon correctly. A common pitfall is creating a new mock function instance for each call, which prevents proper tracking of interactions. The recommended approach is to define the mock function outside the `jest.mock` call and reference it within the mock implementation. This ensures that the same function instance is used throughout the test, allowing for accurate call tracking and assertions.

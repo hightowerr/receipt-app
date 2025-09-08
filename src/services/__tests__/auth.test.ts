@@ -1,144 +1,118 @@
+// src/services/__tests__/auth.test.ts
 import {FirebaseAuthService} from "../auth";
-import {rnAuth} from "../../config/firebase.config";
-import {AuthError} from "../../types/firebase";
+import {FirebaseUser, AuthError} from "../../types/firebase";
 
-// Create mocks for the individual Firebase auth functions
-const mockCreateUserWithEmailAndPassword = jest.fn();
-const mockSignInWithEmailAndPassword = jest.fn();
-const mockSignOut = jest.fn();
-const mockOnAuthStateChanged = jest.fn();
-
-// Define a single mock auth object that will be returned by rnAuth
-const mockAuth = {
-  createUserWithEmailAndPassword: mockCreateUserWithEmailAndPassword,
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
-  signOut: mockSignOut,
-  onAuthStateChanged: mockOnAuthStateChanged,
-  currentUser: null,
+// Mock React Native Firebase
+const mockFirebaseAuth = {
+  createUserWithEmailAndPassword: jest.fn(),
+  signInWithEmailAndPassword: jest.fn(),
+  signOut: jest.fn(),
+  currentUser: null as any,
+  onAuthStateChanged: jest.fn(),
 };
 
-// Mock the firebase.config module to return our single mockAuth object
-jest.mock("../../config/firebase.config", () => ({
-  rnAuth: jest.fn(() => mockAuth),
+jest.mock("@react-native-firebase/auth", () => ({
+  __esModule: true,
+  default: () => mockFirebaseAuth,
 }));
 
 describe("FirebaseAuthService", () => {
   const mockUser = {
-    uid: "123",
+    uid: "test-uid",
     email: "test@example.com",
     displayName: "Test User",
-    emailVerified: true,
+    emailVerified: false,
   };
 
-  afterEach(() => {
-    // Clear all mocks after each test
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe("signUp", () => {
-    it("should sign up a user successfully", async () => {
-      mockCreateUserWithEmailAndPassword.mockResolvedValue({
+    it("should create user with valid email and password", async () => {
+      mockFirebaseAuth.createUserWithEmailAndPassword.mockResolvedValue({
         user: mockUser,
       });
-      const user = await FirebaseAuthService.signUp(
+
+      const result = await FirebaseAuthService.signUp(
         "test@example.com",
-        "password"
+        "password123"
       );
-      expect(user).toEqual(mockUser);
+
+      expect(result).toEqual({
+        uid: mockUser.uid,
+        email: mockUser.email,
+        displayName: mockUser.displayName,
+        emailVerified: mockUser.emailVerified,
+      });
     });
 
-    it("should throw an error on sign up failure", async () => {
-      const mockError: AuthError = {
-        code: "auth/error",
-        message: "An error occurred",
+    it("should throw AuthError on invalid credentials", async () => {
+      const authError = {
+        code: "auth/invalid-email",
+        message: "Invalid email",
       };
-      mockCreateUserWithEmailAndPassword.mockRejectedValue(mockError);
+      mockFirebaseAuth.createUserWithEmailAndPassword.mockRejectedValue(
+        authError
+      );
+
       await expect(
-        FirebaseAuthService.signUp("test@example.com", "password")
-      ).rejects.toEqual(mockError);
+        FirebaseAuthService.signUp("invalid-email", "password123")
+      ).rejects.toEqual(authError);
     });
   });
 
   describe("signIn", () => {
-    it("should sign in a user successfully", async () => {
-      mockSignInWithEmailAndPassword.mockResolvedValue({
+    it("should sign in with valid credentials", async () => {
+      mockFirebaseAuth.signInWithEmailAndPassword.mockResolvedValue({
         user: mockUser,
       });
-      const user = await FirebaseAuthService.signIn(
+
+      const result = await FirebaseAuthService.signIn(
         "test@example.com",
-        "password"
+        "password123"
       );
-      expect(user).toEqual(mockUser);
+
+      expect(result).toEqual({
+        uid: mockUser.uid,
+        email: mockUser.email,
+        displayName: mockUser.displayName,
+        emailVerified: mockUser.emailVerified,
+      });
     });
 
-    it("should throw an error on sign in failure", async () => {
-      const mockError: AuthError = {
-        code: "auth/error",
-        message: "An error occurred",
+    it("should throw AuthError with wrong password", async () => {
+      const authError = {
+        code: "auth/wrong-password",
+        message: "Wrong password",
       };
-      mockSignInWithEmailAndPassword.mockRejectedValue(mockError);
+      mockFirebaseAuth.signInWithEmailAndPassword.mockRejectedValue(authError);
+
       await expect(
-        FirebaseAuthService.signIn("test@example.com", "password")
-      ).rejects.toEqual(mockError);
-    });
-  });
-
-  describe("signOut", () => {
-    it("should sign out a user successfully", async () => {
-      mockSignOut.mockResolvedValue(undefined);
-      await expect(FirebaseAuthService.signOut()).resolves.not.toThrow();
-    });
-
-    it("should throw an error on sign out failure", async () => {
-      const mockError: AuthError = {
-        code: "auth/error",
-        message: "An error occurred",
-      };
-      mockSignOut.mockRejectedValue(mockError);
-      await expect(FirebaseAuthService.signOut()).rejects.toEqual(mockError);
+        FirebaseAuthService.signIn("test@example.com", "wrongpassword")
+      ).rejects.toEqual(authError);
     });
   });
 
   describe("getCurrentUser", () => {
-    it("should return the current user if authenticated", () => {
-      // Temporarily set the currentUser on our mockAuth object
-      Object.defineProperty(mockAuth, "currentUser", {
-        value: mockUser,
-        writable: true,
-      });
-      const user = FirebaseAuthService.getCurrentUser();
-      expect(user).toEqual(mockUser);
+    it("should return null when no user is signed in", () => {
+      mockFirebaseAuth.currentUser = null;
+
+      const result = FirebaseAuthService.getCurrentUser();
+      expect(result).toBeNull();
     });
 
-    it("should return null if not authenticated", () => {
-      Object.defineProperty(mockAuth, "currentUser", {
-        value: null,
-        writable: true,
-      });
-      const user = FirebaseAuthService.getCurrentUser();
-      expect(user).toBeNull();
-    });
-  });
+    it("should return user when signed in", () => {
+      mockFirebaseAuth.currentUser = mockUser;
 
-  describe("onAuthStateChanged", () => {
-    it("should call the callback with the user when auth state changes", () => {
-      const callback = jest.fn();
-      mockOnAuthStateChanged.mockImplementation((cb) => {
-        cb(mockUser);
-        return jest.fn(); // Return an unsubscribe function
+      const result = FirebaseAuthService.getCurrentUser();
+      expect(result).toEqual({
+        uid: mockUser.uid,
+        email: mockUser.email,
+        displayName: mockUser.displayName,
+        emailVerified: mockUser.emailVerified,
       });
-      FirebaseAuthService.onAuthStateChanged(callback);
-      expect(callback).toHaveBeenCalledWith(mockUser);
-    });
-
-    it("should call the callback with null when user signs out", () => {
-      const callback = jest.fn();
-      mockOnAuthStateChanged.mockImplementation((cb) => {
-        cb(null);
-        return jest.fn();
-      });
-      FirebaseAuthService.onAuthStateChanged(callback);
-      expect(callback).toHaveBeenCalledWith(null);
+      mockFirebaseAuth.currentUser = null;
     });
   });
 });

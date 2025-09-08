@@ -93,6 +93,8 @@ jest.mock("firebase/auth", () => ({
   signInWithEmailAndPassword: jest.fn(),
   createUserWithEmailAndPassword: jest.fn(),
   signOut: jest.fn(),
+  initializeAuth: jest.fn(),
+  browserLocalPersistence: "browserLocalPersistence",
 }));
 
 jest.mock("firebase/firestore", () => ({
@@ -110,6 +112,56 @@ jest.mock("firebase/firestore", () => ({
   orderBy: jest.fn(),
   limit: jest.fn(),
   onSnapshot: jest.fn(() => () => {}),
+}));
+
+jest.mock("@react-native-firebase/app", () => ({
+  __esModule: true,
+  default: {
+    apps: [],
+    initializeApp: jest.fn(() => Promise.resolve({})),
+    app: jest.fn(() => ({
+      name: "mock-app",
+      options: {},
+      delete: jest.fn(),
+    })),
+  },
+}));
+
+jest.mock("@react-native-firebase/auth", () => ({
+  __esModule: true,
+  default: () => ({
+    createUserWithEmailAndPassword: jest.fn(),
+    signInWithEmailAndPassword: jest.fn(),
+    signOut: jest.fn(),
+    currentUser: null,
+    onAuthStateChanged: jest.fn(),
+  }),
+}));
+
+jest.mock("@react-native-firebase/firestore", () => ({
+  __esModule: true,
+  default: () => ({
+    collection: jest.fn(() => ({
+      doc: jest.fn(() => ({
+        id: "mock-id",
+        set: jest.fn(),
+        update: jest.fn(),
+        onSnapshot: jest.fn(() => () => {}),
+      })),
+    })),
+  }),
+}));
+
+jest.mock("@react-native-firebase/storage", () => ({
+  __esModule: true,
+  default: () => ({
+    ref: jest.fn(() => ({
+      putFile: jest.fn(() => ({
+        on: jest.fn(),
+      })),
+      getDownloadURL: jest.fn(() => Promise.resolve("mock-url")),
+    })),
+  }),
 }));
 
 jest.mock("@expo/vector-icons", () => {
